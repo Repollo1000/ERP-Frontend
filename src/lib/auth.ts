@@ -1,4 +1,4 @@
-import { api, setAccessToken, limpiarTokens } from './api';
+import { api, setAccessToken, getAccessToken, limpiarTokens } from './api';
 import type {
   CredencialesLogin,
   RespuestaLogin,
@@ -144,8 +144,8 @@ export const authService = {
 
       return respuesta;
     } catch {
-      limpiarTokens();
-      setUsuario(null);
+      // NO limpiar tokens aquí - el access token podría seguir siendo válido
+      // Solo retornar null para indicar que el refresh falló
       return null;
     }
   },
@@ -184,12 +184,18 @@ export const authService = {
 
   /**
    * Intentar restaurar sesión al cargar la página.
-   * Usa el refresh token en la cookie.
-   * Timeout de 5 segundos para no bloquear si el backend no responde.
+   * Si ya hay token/usuario en memoria, usarlos.
+   * Si no, intentar refresh con la cookie.
    */
   async restaurarSesion(): Promise<Usuario | null> {
+    // Si ya hay un access token en memoria, no intentar refresh
+    // (el token fue establecido por login/2FA recientemente)
+    if (getAccessToken()) {
+      return usuarioActual;
+    }
+
+    // Sin token en memoria, intentar refresh con cookie
     try {
-      // Timeout para no quedarse colgado si el backend no responde
       const timeoutPromise = new Promise<null>((resolve) => {
         setTimeout(() => resolve(null), 5000);
       });
@@ -218,7 +224,6 @@ export const authService = {
       setUsuario(usuario);
       return usuario;
     } catch {
-      // Error de red o backend no disponible
       return null;
     }
   },

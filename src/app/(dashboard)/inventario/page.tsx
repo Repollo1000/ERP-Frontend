@@ -31,10 +31,6 @@ export default function InventarioPage() {
 
   const esAdmin = usuario?.empresaActiva?.rol === 'ADMINISTRADOR';
 
-  useEffect(() => {
-    cargarProductos();
-  }, [cargarProductos]);
-
   // Debounce para búsqueda
   useEffect(() => {
     const timeout = setTimeout(() => {

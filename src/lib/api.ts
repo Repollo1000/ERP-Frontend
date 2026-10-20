@@ -114,7 +114,8 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        limpiarTokens();
+        // NO limpiar tokens aquí - el access token podría seguir siendo válido
+        // Solo retornar false para indicar que el refresh falló
         return false;
       }
 
@@ -122,7 +123,7 @@ class ApiClient {
       setAccessToken(data.accessToken, data.expiraEn);
       return true;
     } catch {
-      limpiarTokens();
+      // NO limpiar tokens en error de red
       return false;
     }
   }

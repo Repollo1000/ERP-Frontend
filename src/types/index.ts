@@ -154,27 +154,45 @@ export interface DatosContacto {
 // Venta
 // ============================================
 
+export type EstadoVenta = 'VIGENTE' | 'ANULADA';
+
+// Línea de venta (del detalle)
 export interface LineaVenta {
+  numeroLinea: number;
   productoId: string;
-  productoNombre: string;
+  descripcion: string;
   cantidad: number;
-  precioUnitario: number;
+  precioUnitarioConIva: number;
   total: number;
 }
 
-export interface Venta {
+// Resumen de venta (para listados)
+export interface VentaResumen {
   id: string;
   numero: number;
-  fecha: string;
+  emitidaEn: string;
   clienteId?: string;
-  clienteNombre?: string;
+  estado: EstadoVenta;
+  total: number;
+}
+
+// Detalle completo de venta
+export interface VentaDetalle {
+  id: string;
+  numero: number;
+  emitidaEn: string;
+  estado: EstadoVenta;
+  clienteId?: string;
+  total: number;
   neto: number;
   iva: number;
-  total: number;
   lineas: LineaVenta[];
-  anulada: boolean;
+  anuladaEn?: string;
   motivoAnulacion?: string;
 }
+
+// Alias para compatibilidad (usa VentaResumen en listados)
+export type Venta = VentaResumen;
 
 export interface SolicitudVenta {
   clienteId?: string;
@@ -306,4 +324,253 @@ export interface Actividad {
   entidadId: string;
   ocurridoEn: string;
   empresa?: string;
+}
+
+// ============================================
+// Respuestas Paginadas
+// ============================================
+
+export interface RespuestaPaginada<T> {
+  contenido: T[];
+  pagina: number;
+  porPagina: number;
+  totalElementos: number;
+  totalPaginas: number;
+  ordenPor: string;
+  ordenDir: 'asc' | 'desc';
+}
+
+// Tipos para ordenamiento
+export type DireccionOrden = 'asc' | 'desc';
+
+export interface Ordenamiento {
+  campo: string;
+  direccion: DireccionOrden;
+}
+
+// ============================================
+// Filtros por Módulo
+// ============================================
+
+export interface FiltrosProductos {
+  q?: string;                    // Búsqueda por nombre o código exacto
+  estado?: 'activo' | 'inactivo';
+  unidad?: UnidadProducto;
+  precioMin?: number;
+  precioMax?: number;
+  bajoStock?: boolean;
+  sinStock?: boolean;
+  ordenPor?: 'nombre' | 'codigo' | 'precio';
+  ordenDir?: DireccionOrden;
+  pagina?: number;
+  porPagina?: number;
+}
+
+export type TipoPersona = 'NATURAL' | 'JURIDICA';
+
+export interface FiltrosContactos {
+  q?: string;                    // Búsqueda por nombre o RUT exacto
+  tipo?: 'cliente' | 'proveedor';
+  estado?: 'activo' | 'inactivo';
+  tipoPersona?: TipoPersona;
+  ordenPor?: string;
+  ordenDir?: DireccionOrden;
+  pagina?: number;
+  porPagina?: number;
+}
+
+export interface FiltrosVentas {
+  desde?: string;                // Fecha ISO
+  hasta?: string;                // Fecha ISO
+  clienteId?: string;
+  estado?: 'emitida' | 'anulada';
+  ordenPor?: string;
+  ordenDir?: DireccionOrden;
+  pagina?: number;
+  porPagina?: number;
+}
+
+export interface FiltrosCompras {
+  desde?: string;                // Fecha ISO
+  hasta?: string;                // Fecha ISO
+  proveedorId?: string;
+  estado?: 'activa' | 'anulada';
+  folio?: string;
+  ordenPor?: string;
+  ordenDir?: DireccionOrden;
+  pagina?: number;
+  porPagina?: number;
+}
+
+// ============================================
+// Vistas Guardadas
+// ============================================
+
+export type ModuloVista = 'productos' | 'contactos' | 'ventas' | 'compras' | 'inventario';
+
+export interface ConfiguracionVista {
+  filtros: FiltrosProductos | FiltrosContactos | FiltrosVentas | FiltrosCompras | Record<string, unknown>;
+  columnas: string[];
+  orden?: {
+    campo: string;
+    dir: DireccionOrden;
+  };
+}
+
+export interface Vista {
+  id: string;
+  modulo: ModuloVista;
+  nombre: string;
+  configuracion: ConfiguracionVista;
+  compartida: boolean;
+  predeterminada: boolean;
+  creadoPor?: string;
+  creadoEn?: string;
+}
+
+export interface CrearVista {
+  modulo: ModuloVista;
+  nombre: string;
+  configuracion: ConfiguracionVista;
+}
+
+export interface RespuestaVistas {
+  personales: Vista[];
+  compartidas: Vista[];
+}
+
+// ============================================
+// Acciones Masivas
+// ============================================
+
+export interface SolicitudAccionMasiva {
+  ids: string[];
+}
+
+export interface RespuestaAccionMasiva {
+  exitosos: number;
+  fallidos: number;
+  errores: string[];
+}
+
+// ============================================
+// Dashboard Configurable
+// ============================================
+
+export type TipoWidget =
+  | 'VENTAS_KPI'
+  | 'COMPRAS_KPI'
+  | 'INVENTARIO_KPI'
+  | 'CONTACTOS_KPI'
+  | 'GRAFICO_VENTAS_30D'
+  | 'GRAFICO_VENTAS_DIA'
+  | 'ALERTAS_INVENTARIO'
+  | 'ULTIMAS_VENTAS'
+  | 'ULTIMAS_COMPRAS'
+  | 'TOP_CLIENTES'
+  | 'TOP_PRODUCTOS';
+
+export interface ConfiguracionWidget {
+  tipo: TipoWidget;
+  visible: boolean;
+  orden?: number;
+}
+
+export interface ConfiguracionDashboard {
+  widgets: ConfiguracionWidget[];
+}
+
+export interface WidgetDisponible {
+  tipo: TipoWidget;
+  nombre: string;
+  descripcion: string;
+  categoria: 'kpi' | 'grafico' | 'lista';
+}
+
+// KPIs completos del dashboard
+export interface MetricasConVariacion {
+  total: number;
+  cantidad: number;
+  variacion?: number;        // Porcentaje vs período anterior
+}
+
+export interface KPIsVentas {
+  hoy: MetricasConVariacion;
+  semana: MetricasConVariacion;
+  mes: MetricasConVariacion;
+}
+
+export interface KPIsCompras {
+  mes: MetricasConVariacion;
+}
+
+export interface KPIsInventario {
+  productosActivos: number;
+  productosBajoMinimo: number;
+  productosSinStock: number;
+  valorEstimado: number;
+}
+
+export interface KPIsContactos {
+  clientesActivos: number;
+  proveedoresActivos: number;
+  nuevosEsteMes: number;
+}
+
+export interface TopProducto {
+  id: string;
+  codigo: string | null;
+  nombre: string;
+  cantidadVendida: number;
+  totalVentas: number;
+}
+
+export interface TopCliente {
+  id: string;
+  nombre: string;
+  totalCompras: number;
+  cantidadCompras: number;
+}
+
+export interface VentaReciente {
+  id: string;
+  numero: number;
+  cliente: string | null;
+  total: number;
+  emitidaEn: string;
+}
+
+export interface CompraReciente {
+  id: string;
+  numero: number;
+  proveedor: string | null;
+  total: number;
+  fecha: string;
+}
+
+export interface ProductoAlerta {
+  id: string;
+  codigo: string | null;
+  nombre: string;
+  stock: number;
+  stockMinimo: number;
+}
+
+export interface DatosGrafico30D {
+  fecha: string;
+  total: number;
+  cantidad: number;
+}
+
+export interface KPIsCompletos {
+  ventas: KPIsVentas;
+  compras: KPIsCompras;
+  inventario: KPIsInventario;
+  contactos: KPIsContactos;
+  topClientes: TopCliente[];
+  topProductos: TopProducto[];
+  ultimasVentas: VentaReciente[];
+  ultimasCompras: CompraReciente[];
+  alertasInventario: ProductoAlerta[];
+  graficoVentas30D: DatosGrafico30D[];
 }

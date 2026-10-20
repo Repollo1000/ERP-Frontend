@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
-import type { Producto, Kardex, SolicitudMovimiento, ApiError } from '@/types';
+import { useAuth } from './useAuth';
+import type { Producto, Kardex, SolicitudMovimiento, ApiError, RespuestaPaginada } from '@/types';
 
 interface ProductoConStock extends Producto {
   stock: number;
 }
-
-type RespuestaListaProductos = ProductoConStock[];
 
 interface UseInventarioReturn {
   productos: ProductoConStock[];
@@ -19,6 +18,7 @@ interface UseInventarioReturn {
   error: string | null;
   paginaActual: number;
   totalPaginas: number;
+  totalElementos: number;
   busqueda: string;
 
   cargarProductos: () => Promise<void>;
@@ -31,6 +31,7 @@ interface UseInventarioReturn {
 }
 
 export function useInventario(): UseInventarioReturn {
+  const { usuario, cargando: cargandoAuth } = useAuth();
   const [productos, setProductos] = useState<ProductoConStock[]>([]);
   const [kardex, setKardex] = useState<Kardex | null>(null);
   const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoConStock | null>(null);
@@ -39,7 +40,9 @@ export function useInventario(): UseInventarioReturn {
   const [error, setError] = useState<string | null>(null);
   const [paginaActual, setPaginaActual] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(0);
+  const [totalElementos, setTotalElementos] = useState(0);
   const [busqueda, setBusqueda] = useState('');
+  const inicializadoRef = useRef(false);
 
   const cargarProductos = useCallback(async () => {
     setCargando(true);
@@ -48,17 +51,21 @@ export function useInventario(): UseInventarioReturn {
     try {
       const params = new URLSearchParams();
       params.set('pagina', paginaActual.toString());
+      params.set('porPagina', '20');
       params.set('incluirStock', 'true');
       if (busqueda) {
         params.set('q', busqueda);
       }
 
-      const respuesta = await api.get<RespuestaListaProductos>(
+      const respuesta = await api.get<RespuestaPaginada<ProductoConStock>>(
         `/api/productos?${params.toString()}`
       );
 
-      setProductos(respuesta);
-      setTotalPaginas(respuesta.length >= 50 ? paginaActual + 2 : paginaActual + 1);
+      // Manejar respuesta paginada
+      setProductos(respuesta.contenido);
+      setTotalPaginas(respuesta.totalPaginas);
+      setTotalElementos(respuesta.totalElementos);
+      setPaginaActual(respuesta.pagina);
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.error || 'Error al cargar productos');
@@ -66,6 +73,18 @@ export function useInventario(): UseInventarioReturn {
       setCargando(false);
     }
   }, [paginaActual, busqueda]);
+
+  // Cargar cuando el usuario esté autenticado
+  useEffect(() => {
+    if (cargandoAuth) return;
+
+    if (usuario?.empresaActiva) {
+      if (!inicializadoRef.current) {
+        inicializadoRef.current = true;
+      }
+      cargarProductos();
+    }
+  }, [usuario, cargandoAuth, cargarProductos]);
 
   const buscar = useCallback((texto: string) => {
     setBusqueda(texto);
@@ -132,6 +151,7 @@ export function useInventario(): UseInventarioReturn {
     error,
     paginaActual,
     totalPaginas,
+    totalElementos,
     busqueda,
     cargarProductos,
     buscar,

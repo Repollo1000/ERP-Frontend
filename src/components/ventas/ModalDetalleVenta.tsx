@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Modal, Button, Input, Badge } from '@/components/ui';
-import type { Venta } from '@/types';
+import { useState, useEffect } from 'react';
+import { Modal, Button, Input, Badge, Spinner } from '@/components/ui';
+import { api } from '@/lib/api';
+import type { VentaResumen, VentaDetalle } from '@/types';
 
 function formatearPrecio(precio: number): string {
   return new Intl.NumberFormat('es-CL', {
@@ -12,8 +13,9 @@ function formatearPrecio(precio: number): string {
   }).format(precio);
 }
 
-function formatearFecha(fecha: string): string {
-  return new Date(fecha).toLocaleDateString('es-CL', {
+function formatearFecha(fechaISO: string): string {
+  const fecha = new Date(fechaISO);
+  return fecha.toLocaleDateString('es-CL', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -23,7 +25,7 @@ function formatearFecha(fecha: string): string {
 }
 
 interface ModalDetalleVentaProps {
-  venta: Venta | null;
+  venta: VentaResumen | null;
   onCerrar: () => void;
   onAnular: (id: string, motivo: string) => Promise<{ exito: boolean; error?: string }>;
   esAdmin?: boolean;
@@ -39,6 +41,20 @@ export function ModalDetalleVenta({
   const [motivo, setMotivo] = useState('');
   const [anulando, setAnulando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detalle, setDetalle] = useState<VentaDetalle | null>(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  // Cargar detalle cuando se abre el modal
+  useEffect(() => {
+    if (venta) {
+      setCargandoDetalle(true);
+      setDetalle(null);
+      api.get<VentaDetalle>(`/api/ventas/${venta.id}`)
+        .then(setDetalle)
+        .catch(() => setError('Error al cargar detalle'))
+        .finally(() => setCargandoDetalle(false));
+    }
+  }, [venta]);
 
   if (!venta) return null;
 
@@ -68,119 +84,130 @@ export function ModalDetalleVenta({
     setMostrarAnular(false);
     setMotivo('');
     setError(null);
+    setDetalle(null);
     onCerrar();
   };
 
+  const esAnulada = venta.estado === 'ANULADA';
+
   return (
-    <Modal abierto={!!venta} onCerrar={handleCerrar} titulo={`Venta #${venta.numero}`} className="max-w-2xl">
+    <Modal abierto={!!venta} onCerrar={handleCerrar} titulo={`Venta #${venta.numero.toString().padStart(4, '0')}`} className="max-w-2xl">
       <div className="space-y-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="text-sm text-foreground-muted">Fecha</p>
-            <p>{formatearFecha(venta.fecha)}</p>
+        {cargandoDetalle ? (
+          <div className="flex justify-center py-8">
+            <Spinner />
           </div>
-          <Badge variante={venta.anulada ? 'danger' : 'success'}>
-            {venta.anulada ? 'Anulada' : 'Vigente'}
-          </Badge>
-        </div>
+        ) : detalle ? (
+          <>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm text-foreground-muted">Fecha</p>
+                <p>{formatearFecha(detalle.emitidaEn)}</p>
+              </div>
+              <Badge variante={esAnulada ? 'danger' : 'success'}>
+                {esAnulada ? 'Anulada' : 'Vigente'}
+              </Badge>
+            </div>
 
-        {venta.clienteNombre && (
-          <div>
-            <p className="text-sm text-foreground-muted">Cliente</p>
-            <p>{venta.clienteNombre}</p>
-          </div>
-        )}
+            {esAnulada && detalle.motivoAnulacion && (
+              <div className="bg-danger-light border border-danger rounded-[var(--radius)] p-3">
+                <p className="text-sm text-danger-700 font-medium">Motivo de anulación</p>
+                <p className="text-sm text-danger-700">{detalle.motivoAnulacion}</p>
+              </div>
+            )}
 
-        {venta.anulada && venta.motivoAnulacion && (
-          <div className="bg-danger-light border border-danger rounded-[var(--radius)] p-3">
-            <p className="text-sm text-danger-700 font-medium">Motivo de anulación</p>
-            <p className="text-sm text-danger-700">{venta.motivoAnulacion}</p>
-          </div>
-        )}
+            <div>
+              <p className="text-sm text-foreground-muted mb-2">Detalle</p>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="pb-2 text-left font-medium">Producto</th>
+                    <th className="pb-2 text-right font-medium">Cant.</th>
+                    <th className="pb-2 text-right font-medium">Precio</th>
+                    <th className="pb-2 text-right font-medium">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detalle.lineas.map((linea) => (
+                    <tr key={linea.numeroLinea} className="border-b border-border">
+                      <td className="py-2">{linea.descripcion}</td>
+                      <td className="py-2 text-right tabular-nums">{linea.cantidad}</td>
+                      <td className="py-2 text-right tabular-nums">{formatearPrecio(linea.precioUnitarioConIva)}</td>
+                      <td className="py-2 text-right tabular-nums">{formatearPrecio(linea.total)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        <div>
-          <p className="text-sm text-foreground-muted mb-2">Detalle</p>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="pb-2 text-left font-medium">Producto</th>
-                <th className="pb-2 text-right font-medium">Cant.</th>
-                <th className="pb-2 text-right font-medium">Precio</th>
-                <th className="pb-2 text-right font-medium">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {venta.lineas.map((linea, index) => (
-                <tr key={index} className="border-b border-border">
-                  <td className="py-2">{linea.productoNombre}</td>
-                  <td className="py-2 text-right tabular-nums">{linea.cantidad}</td>
-                  <td className="py-2 text-right tabular-nums">{formatearPrecio(linea.precioUnitario)}</td>
-                  <td className="py-2 text-right tabular-nums">{formatearPrecio(linea.total)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            <div className="border-t border-border pt-4 space-y-1">
+              <div className="flex justify-between text-sm">
+                <span>Neto</span>
+                <span className="tabular-nums">{formatearPrecio(detalle.neto)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>IVA (19%)</span>
+                <span className="tabular-nums">{formatearPrecio(detalle.iva)}</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span className="tabular-nums">{formatearPrecio(detalle.total)}</span>
+              </div>
+            </div>
 
-        <div className="border-t border-border pt-4 space-y-1">
-          <div className="flex justify-between text-sm">
-            <span>Neto</span>
-            <span className="tabular-nums">{formatearPrecio(venta.neto)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>IVA (19%)</span>
-            <span className="tabular-nums">{formatearPrecio(venta.iva)}</span>
-          </div>
-          <div className="flex justify-between text-lg font-bold">
-            <span>Total</span>
-            <span className="tabular-nums">{formatearPrecio(venta.total)}</span>
-          </div>
-        </div>
+            {mostrarAnular && (
+              <div className="border-t border-border pt-4 space-y-3">
+                <Input
+                  etiqueta="Motivo de anulación"
+                  value={motivo}
+                  onChange={(e) => setMotivo(e.target.value)}
+                  error={error || undefined}
+                  required
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variante="secondary"
+                    tamaño="sm"
+                    onClick={() => {
+                      setMostrarAnular(false);
+                      setMotivo('');
+                      setError(null);
+                    }}
+                    disabled={anulando}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    variante="danger"
+                    tamaño="sm"
+                    onClick={handleAnular}
+                    cargando={anulando}
+                  >
+                    Confirmar anulación
+                  </Button>
+                </div>
+              </div>
+            )}
 
-        {mostrarAnular && (
-          <div className="border-t border-border pt-4 space-y-3">
-            <Input
-              etiqueta="Motivo de anulación"
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-              error={error || undefined}
-              required
-            />
-            <div className="flex justify-end gap-2">
-              <Button
-                variante="secondary"
-                tamaño="sm"
-                onClick={() => {
-                  setMostrarAnular(false);
-                  setMotivo('');
-                  setError(null);
-                }}
-                disabled={anulando}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variante="danger"
-                tamaño="sm"
-                onClick={handleAnular}
-                cargando={anulando}
-              >
-                Confirmar anulación
+            <div className="flex justify-end gap-3 pt-4 border-t border-border">
+              {esAdmin && !esAnulada && !mostrarAnular && (
+                <Button variante="danger" onClick={() => setMostrarAnular(true)}>
+                  Anular venta
+                </Button>
+              )}
+              <Button variante="secondary" onClick={handleCerrar}>
+                Cerrar
               </Button>
             </div>
-          </div>
-        )}
-
-        <div className="flex justify-end gap-3 pt-4 border-t border-border">
-          {esAdmin && !venta.anulada && !mostrarAnular && (
-            <Button variante="danger" onClick={() => setMostrarAnular(true)}>
-              Anular venta
+          </>
+        ) : error ? (
+          <div className="text-center py-8 text-danger">
+            <p>{error}</p>
+            <Button variante="secondary" onClick={handleCerrar} className="mt-4">
+              Cerrar
             </Button>
-          )}
-          <Button variante="secondary" onClick={handleCerrar}>
-            Cerrar
-          </Button>
-        </div>
+          </div>
+        ) : null}
       </div>
     </Modal>
   );

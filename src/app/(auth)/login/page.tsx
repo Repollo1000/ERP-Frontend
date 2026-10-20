@@ -2,8 +2,6 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import {
@@ -33,6 +31,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const [recordar, setRecordar] = useState(false);
 
   const manejarLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -96,28 +95,43 @@ export default function LoginPage() {
   const estaBloqueado = segundosBloqueado !== null && segundosBloqueado > 0;
 
   return (
-    <Card>
-      <CardHeader
-        titulo="Iniciar sesión"
-        descripcion="Ingresa tus credenciales para acceder"
-      />
+    <div className="space-y-8">
+      {/* Header - visible solo en móvil */}
+      <div className="lg:hidden text-center mb-8">
+        <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
+          <span className="text-white font-bold text-lg">ERP</span>
+        </div>
+        <h1 className="text-2xl font-bold text-foreground">Bienvenido</h1>
+      </div>
 
-      <form onSubmit={manejarLogin}>
-        <CardContent className="space-y-4">
-          {error && (
-            <Alert tipo="danger">
-              {error}
-            </Alert>
-          )}
+      {/* Título del formulario */}
+      <div>
+        <h2 className="text-3xl font-bold text-foreground">Iniciar sesión</h2>
+        <p className="text-foreground-muted mt-2">
+          Ingresa tus credenciales para continuar
+        </p>
+      </div>
 
-          {estaBloqueado && (
-            <Alert tipo="warning">
-              Cuenta bloqueada. Intenta de nuevo en {Math.ceil(segundosBloqueado / 60)} minutos.
-            </Alert>
-          )}
+      {/* Alertas */}
+      {error && (
+        <Alert tipo="danger">
+          {error}
+        </Alert>
+      )}
 
-          <Input
-            etiqueta="Correo electrónico"
+      {estaBloqueado && (
+        <Alert tipo="warning">
+          Cuenta bloqueada. Intenta de nuevo en {Math.ceil(segundosBloqueado / 60)} minutos.
+        </Alert>
+      )}
+
+      {/* Formulario */}
+      <form onSubmit={manejarLogin} className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
+            Correo electrónico
+          </label>
+          <input
             type="email"
             autoComplete="email"
             placeholder="tu@empresa.cl"
@@ -126,10 +140,22 @@ export default function LoginPage() {
             required
             autoFocus
             disabled={estaBloqueado}
+            className="
+              w-full px-4 py-3 rounded-lg
+              bg-white border-2 border-gray-200
+              text-gray-900 placeholder-gray-400
+              focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+              transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed
+            "
           />
+        </div>
 
-          <Input
-            etiqueta="Contraseña"
+        <div>
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
+            Contraseña
+          </label>
+          <input
             type="password"
             autoComplete="current-password"
             placeholder="••••••••"
@@ -137,34 +163,88 @@ export default function LoginPage() {
             onChange={(e) => setContrasena(e.target.value)}
             required
             disabled={estaBloqueado}
+            className="
+              w-full px-4 py-3 rounded-lg
+              bg-white border-2 border-gray-200
+              text-gray-900 placeholder-gray-400
+              focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+              transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed
+            "
           />
-        </CardContent>
+        </div>
 
-        <CardFooter className="flex-col gap-3">
-          <Button
-            type="submit"
-            cargando={cargando}
-            disabled={estaBloqueado}
-            className="w-full"
-          >
-            Ingresar
-          </Button>
+        {/* Recordarme */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="recordar"
+            checked={recordar}
+            onChange={(e) => setRecordar(e.target.checked)}
+            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <label htmlFor="recordar" className="text-sm text-foreground-muted">
+            Recordarme
+          </label>
+        </div>
 
-          <p className="text-sm text-foreground-muted text-center">
-            ¿No tienes cuenta?{' '}
-            <Link href="/registro" className="text-primary hover:underline">
-              Regístrate
-            </Link>
-          </p>
+        {/* Botón de login */}
+        <Button
+          type="submit"
+          cargando={cargando}
+          disabled={estaBloqueado}
+          className="w-full py-3 text-base"
+        >
+          Iniciar sesión
+        </Button>
 
+        {/* Link de recuperación */}
+        <div className="text-center">
           <Link
             href="/recuperar"
-            className="text-sm text-foreground-muted hover:text-primary text-center"
+            className="text-sm text-foreground-muted hover:text-primary transition-colors"
           >
             ¿Olvidaste tu contraseña?
           </Link>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+
+      {/* Separador */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-background text-foreground-muted">
+            ¿No tienes cuenta?
+          </span>
+        </div>
+      </div>
+
+      {/* Link de registro */}
+      <div className="text-center">
+        <Link
+          href="/registro"
+          className="inline-flex items-center gap-2 text-primary hover:text-primary-hover font-medium transition-colors"
+        >
+          Crear una cuenta
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </Link>
+      </div>
+
+      {/* Footer */}
+      <p className="text-center text-xs text-foreground-muted pt-4">
+        Al iniciar sesión aceptas nuestros{' '}
+        <a href="#" className="underline hover:text-foreground">
+          Términos de Servicio
+        </a>
+        {' '}y{' '}
+        <a href="#" className="underline hover:text-foreground">
+          Política de Privacidad
+        </a>
+      </p>
+    </div>
   );
 }

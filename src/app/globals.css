@@ -1,84 +1,184 @@
 @import "tailwindcss";
 
-/* Sistema de diseño ERP */
+/* Sistema de diseño ERP - Modo Claro/Oscuro */
+
+/* ============================================
+   MODO CLARO (default)
+   ============================================ */
 :root {
-  /* Colores principales */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* Paleta principal Teal */
+  --teal-50: #EAF6F4;
+  --teal-100: #D5EDE9;
+  --teal-200: #9ED8CF;
+  --teal-300: #6BC4B5;
+  --teal-400: #4DB3A3;
+  --teal-500: #3AA597;
+  --teal-600: #2E8478;
+  --teal-700: #1F4E5F;
+  --teal-800: #183D4A;
+  --teal-900: #112C36;
 
-  /* Éxito (ventas, ganancias) */
-  --color-success-50: #f0fdf4;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
+  /* Primary - Teal */
+  --color-primary-50: #EAF6F4;
+  --color-primary-100: #D5EDE9;
+  --color-primary-200: #9ED8CF;
+  --color-primary-300: #6BC4B5;
+  --color-primary-400: #4DB3A3;
+  --color-primary-500: #3AA597;
+  --color-primary-600: #2E8478;
+  --color-primary-700: #1F4E5F;
+  --color-primary-800: #183D4A;
+  --color-primary-900: #112C36;
 
-  /* Peligro (errores, eliminar) */
-  --color-danger-50: #fef2f2;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
-  --color-danger-700: #b91c1c;
+  /* Éxito - Verde */
+  --color-success-50: #F0FDF4;
+  --color-success-100: #DCFCE7;
+  --color-success-500: #22C55E;
+  --color-success-600: #16A34A;
+  --color-success-700: #15803D;
 
-  /* Advertencia */
-  --color-warning-50: #fffbeb;
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
+  /* Peligro - Rojo */
+  --color-danger-50: #FEF2F2;
+  --color-danger-100: #FEE2E2;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
+  --color-danger-700: #B91C1C;
 
-  /* Neutros */
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+  /* Advertencia - Amarillo */
+  --color-warning-50: #FFFBEB;
+  --color-warning-100: #FEF3C7;
+  --color-warning-500: #F59E0B;
+  --color-warning-600: #D97706;
 
-  /* Fondos y texto */
-  --background: #ffffff;
-  --background-subtle: var(--color-gray-50);
-  --foreground: var(--color-gray-900);
-  --foreground-muted: var(--color-gray-500);
+  /* Info - Cyan */
+  --color-info-50: #ECFEFF;
+  --color-info-100: #CFFAFE;
+  --color-info-500: #06B6D4;
+  --color-info-600: #0891B2;
 
-  /* Bordes */
-  --border: var(--color-gray-200);
+  /* === TEMA CLARO === */
+  --background: #FFFFFF;
+  --background-subtle: var(--teal-50);
+  --background-muted: var(--teal-100);
+  --foreground: var(--teal-700);
+  --foreground-muted: var(--teal-600);
+  --foreground-subtle: var(--teal-400);
+  --border: var(--teal-200);
   --border-focus: var(--color-primary-500);
 
-  /* Espaciado base */
+  /* Componentes específicos */
+  --card-bg: #FFFFFF;
+  --card-border: var(--teal-200);
+  --input-bg: #FFFFFF;
+  --input-border: var(--teal-200);
+  --input-placeholder: var(--teal-400);
+  --nav-bg: #FFFFFF;
+  --nav-border: var(--teal-200);
+  --modal-overlay: rgba(31, 78, 95, 0.5);
+
+  /* Radios */
   --radius-sm: 0.25rem;
-  --radius: 0.375rem;
-  --radius-lg: 0.5rem;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
+/* ============================================
+   MODO OSCURO
+   ============================================ */
+[data-theme="dark"] {
+  --background: var(--teal-900);
+  --background-subtle: var(--teal-800);
+  --background-muted: var(--teal-700);
+  --foreground: var(--teal-50);
+  --foreground-muted: var(--teal-200);
+  --foreground-subtle: var(--teal-300);
+  --border: var(--teal-700);
+  --border-focus: var(--color-primary-400);
+
+  /* Componentes específicos - Oscuro */
+  --card-bg: var(--teal-800);
+  --card-border: var(--teal-700);
+  --input-bg: var(--teal-800);
+  --input-border: var(--teal-600);
+  --input-placeholder: var(--teal-400);
+  --nav-bg: var(--teal-900);
+  --nav-border: var(--teal-800);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Colores ajustados para oscuro */
+  --color-primary-50: rgba(58, 165, 151, 0.15);
+  --color-success-50: rgba(34, 197, 94, 0.1);
+  --color-danger-50: rgba(239, 68, 68, 0.1);
+  --color-warning-50: rgba(245, 158, 11, 0.1);
+  --color-info-50: rgba(6, 182, 212, 0.1);
+
+  /* Sombras más sutiles en oscuro */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
+/* Auto-detectar preferencia del sistema si no hay tema explícito */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --background-subtle: #1e293b;
-    --foreground: #f1f5f9;
-    --foreground-muted: #94a3b8;
-    --border: #334155;
+  :root:not([data-theme]) {
+    --background: var(--teal-900);
+    --background-subtle: var(--teal-800);
+    --background-muted: var(--teal-700);
+    --foreground: var(--teal-50);
+    --foreground-muted: var(--teal-200);
+    --foreground-subtle: var(--teal-300);
+    --border: var(--teal-700);
+    --border-focus: var(--color-primary-400);
+    --card-bg: var(--teal-800);
+    --card-border: var(--teal-700);
+    --input-bg: var(--teal-800);
+    --input-border: var(--teal-600);
+    --input-placeholder: var(--teal-400);
+    --nav-bg: var(--teal-900);
+    --nav-border: var(--teal-800);
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --color-primary-50: rgba(58, 165, 151, 0.15);
+    --color-success-50: rgba(34, 197, 94, 0.1);
+    --color-danger-50: rgba(239, 68, 68, 0.1);
+    --color-warning-50: rgba(245, 158, 11, 0.1);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
   }
 }
 
+/* ============================================
+   TAILWIND THEME MAPPING
+   ============================================ */
 @theme inline {
   --color-background: var(--background);
   --color-background-subtle: var(--background-subtle);
+  --color-background-muted: var(--background-muted);
   --color-foreground: var(--foreground);
   --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
   --color-border: var(--border);
   --color-border-focus: var(--border-focus);
 
-  --color-primary: var(--color-primary-600);
-  --color-primary-hover: var(--color-primary-700);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-border: var(--nav-border);
+
+  --color-primary: var(--color-primary-500);
+  --color-primary-hover: var(--color-primary-600);
+  --color-primary-dark: var(--color-primary-800);
   --color-primary-light: var(--color-primary-50);
 
   --color-success: var(--color-success-600);
@@ -86,22 +186,40 @@
 
   --color-danger: var(--color-danger-600);
   --color-danger-light: var(--color-danger-50);
+  --color-danger-700: var(--color-danger-700);
 
   --color-warning: var(--color-warning-500);
   --color-warning-light: var(--color-warning-50);
 
+  --color-info: var(--color-info-500);
+  --color-info-light: var(--color-info-50);
+
   --radius-sm: var(--radius-sm);
   --radius: var(--radius);
   --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
 }
 
-/* Base */
+/* ============================================
+   BASE STYLES
+   ============================================ */
+html {
+  color-scheme: light dark;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Focus visible para accesibilidad */
@@ -110,10 +228,12 @@ body {
   outline-offset: 2px;
 }
 
-/* Scrollbar sutil */
+/* ============================================
+   SCROLLBAR
+   ============================================ */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -121,10 +241,76 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-gray-300);
-  border-radius: 4px;
+  background: var(--border);
+  border-radius: 5px;
+  border: 2px solid var(--background-subtle);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gray-400);
+  background: var(--foreground-muted);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--background-subtle);
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+
+/* Transición suave para cambio de tema */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+/* Glass effect para elementos flotantes */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(24, 61, 74, 0.8);
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
